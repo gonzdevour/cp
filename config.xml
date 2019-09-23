@@ -76,7 +76,15 @@
 	<preference name="android-minSdkVersion" value="27" />
 	<access origin="*" />
 
-
+	<plugin name="cordova-custom-config" />
+	<plugin name="cordova-plugin-camera" />
+	<plugin name="cordova-plugin-file" />
+	<plugin name="cordova-plugin-inappbrowser" />
+	<plugin name="cordova-plugin-splashscreen" />
+	<plugin name="cordova-plugin-media" />
+	<plugin name="cordova-plugin-statusbar" />
+	<plugin name="cordova-plugin-whitelist" />
+	<plugin name="cordova-plugin-wkwebview-engine" />
 
 	<engine name="ios" />
 	<engine name="android" />
