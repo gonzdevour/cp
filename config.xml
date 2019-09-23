@@ -74,7 +74,6 @@
 
 	<preference name="deployment-target" value="9.0" />
 	<preference name="android-minSdkVersion" value="23" />
-	<preference name="phonegap-version" value="cli-7.1.0" />
 	<access origin="*" />
 
 	<plugin name="cordova-custom-config" />
