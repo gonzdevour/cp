@@ -61,7 +61,7 @@
 		<preference name="SplashShowOnlyFirstTime" value="false" />
 	</platform>
 
-	<preference name="android-targetSdkVersion" value="26" />
+	<preference name="android-targetSdkVersion" value="28" />
 
 	<preference name="orientation" value="portrait" />
 	<preference name="fullscreen" value="true" />
@@ -73,7 +73,7 @@
 
 
 	<preference name="deployment-target" value="9.0" />
-	<preference name="android-minSdkVersion" value="21" />
+	<preference name="android-minSdkVersion" value="23" />
 	<access origin="*" />
 
 	<plugin name="cocoon-plugin-ads-android-admob" />
