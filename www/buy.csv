@@ -1,0 +1,20 @@
+,name,initial,add,priceLV1,priceLV2,priceLV3,priceLV4,priceLV5,Default,zh,zhcn,DefaultPrice,zhPrice,zhcnPrice
+0,磁鐵,0,1,500,1200,2400,4800,6000,Magnet: Increase strength to draw items,磁鐵: 增加吸引道具的強度,磁铁：增加吸引道具的强度 ,,,
+1,防禦,0,0.05,500,1200,2400,4800,6000,Defence: Reduce bullet damage taken by 5% for each rank,防禦: 每一級減少子彈造成的傷害5%,防御：每一级减少子弹造成的伤害5％ ,,,
+2,火雨,2,0.5,500,1200,2400,4800,6000,Increase FireRain hit damage,火雨: 打擊傷害增加,火雨：打击伤害增加 ,,,
+3,補血,30,5,500,1200,2400,4800,6000, Increase Heal amount,愛心: 回復量增加,爱心：回复量增加 ,,,
+4,護盾,10,1,500,1200,2400,4800,6000,Increase Eenrgy Shield duration by 1 sec for each rank,護盾: 每一級持續時間增加1秒,护盾：每一级持续时间增加1秒 ,,,
+5,寶石,100,10,500,1200,2400,4800,6000,Increase 10 Gems to obtain for each rank,寶石: 每一級獲得的寶石增加10,宝石：每一级获得的宝石增加10,,,
+6,小雪球,1.5,0.2,200,600,1200,2400,3000,Increase Small Snowball damage ,小雪球: 傷害增加,小雪球：伤害增加 ,,,
+7,大雪球,2,0.2,250,700,1400,2800,3600,Increase  Big Snowball damage ,大雪球: 傷害增加,大雪球：伤害增加 ,,,
+8,錐形,4,0.4,300,800,1600,3200,4000,Increase Ice Cone damage ,冰錐: 傷害增加,冰锥：伤害增加 ,,,
+9,岩石,2,0.2,300,800,1600,3200,4000,Increase Rock Ball damage ,岩石球: 傷害增加,岩石球：伤害增加 ,,,
+10,閃電,2,0.2,400,1000,2000,4000,5200,Increase Crystal lightning damage,水晶: 閃電傷害增加,水晶：闪电伤害增加 ,,,
+11,綠球,3,0.4,400,1000,2000,4000,5200,Increase Sticky Liquid duration by 1 sec,黏液球: 黏液持續時間增加,黏液球：黏液持续时间增加 ,,,
+12,紅球,0.5,0.1,400,1000,2000,4000,5200,Increase Flame damage,火焰球: 火焰傷害增加,火焰球：火焰伤害增加,,,
+,,,,,,,,,,,,,,
+S0,商店寶石LV1,10000,,,,,,,A few gems,一些寶石,一些宝石 ,$0.99,NT.30,CN¥6.00
+S1,商店寶石LV2,32000,,,,,,,Lots of gems,很多寶石,很多宝石 ,$2.99,NT.90,CN¥18.00
+S2,商店寶石LV3,100000,,,,,,,Tons of gems,一大堆寶石,一大堆宝石 ,$7.99,NT.240,CN¥50.00
+S3,移除廣告,,,,,,,,Remove Ads,移除廣告,移除广告 ,$0.99,NT.30,CN¥6.00
+S4,恢復購買,,,,,,,,Restore,恢復購買,恢复购买,FREE,免費,免费
