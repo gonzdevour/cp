@@ -23,22 +23,10 @@
 
 
 	<preference name="deployment-target" value="9.0" />
-	<preference name="android-minSdkVersion" value="23" />
+	<preference name="android-minSdkVersion" value="28" />
 	<access origin="*" />
 
-	<plugin name="cocoon-plugin-ads-android-admob" />
-	<plugin name="cocoon-plugin-inapps-android-googleplay" />
-	<plugin name="cordova-custom-config" />
-	<plugin name="cordova-plugin-camera" />
-	<plugin name="cordova-plugin-file" />
-	<plugin name="cordova-plugin-inappbrowser" />
-	<plugin name="cordova-plugin-media" />
-	<plugin name="cordova-plugin-statusbar" />
-	<plugin name="cordova-plugin-whitelist" />
-	<plugin name="cordova-plugin-wkwebview-engine" />
-	<plugin spec="https://github.com/cranberrygame/cordova-plugin-game.git" source="git">
-        <variable name="APP_ID" value="1055728607458" />
-	</plugin>
+
 
 	<engine name="ios" />
 	<engine name="android" />
