@@ -77,6 +77,8 @@
 	<preference name="phonegap-version" value="cli-7.1.0" />
 	<access origin="*" />
 	
+	<plugin name="cordova-plugin-file" />
+	<plugin name="cordova-plugin-inappbrowser" />
 	<plugin name="cordova-plugin-splashscreen" />
 	<plugin name="cordova-plugin-media" />
 	<plugin name="cordova-plugin-statusbar" />
