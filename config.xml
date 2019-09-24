@@ -79,10 +79,6 @@
 	
 	<plugin name="cocoon-plugin-ads-android-admob" />
 	<plugin name="cocoon-plugin-inapps-android-googleplay" />
-	<plugin name="cordova-custom-config" />
-	<plugin name="cordova-plugin-camera" />
-	<plugin name="cordova-plugin-file" />
-	<plugin name="cordova-plugin-inappbrowser" />
 
 	<plugin name="cordova-plugin-play-games-services" spec="1.1.2">
 		<variable name="APP_ID" value="1055728607458" />
