@@ -77,10 +77,6 @@
 	<access origin="*" />
 
 
-	<plugin name="cordova-plugin-media" />
-	<plugin name="cordova-plugin-statusbar" />
-	<plugin name="cordova-plugin-whitelist" />
-	<plugin name="cordova-plugin-wkwebview-engine" />
 	<plugin name="cordova-plugin-play-games-services" spec="1.1.2">
 		<variable name="APP_ID" value="1055728607458" />
 	</plugin>
