@@ -77,7 +77,9 @@
 	<preference name="phonegap-version" value="cli-7.1.0" />
 	<access origin="*" />
 	
-	<plugin name="cordova-plugin-camera" />
+	<plugin name="cocoon-plugin-ads-android-admob" />
+
+	<plugin name="cordova-custom-config" />
 	<plugin name="cordova-plugin-file" />
 	<plugin name="cordova-plugin-inappbrowser" />
 	<plugin name="cordova-plugin-splashscreen" />
