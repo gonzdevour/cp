@@ -22381,6 +22381,746 @@ cr.plugins_.Rex_CSV = function(runtime)
 }());
 ;
 ;
+cr.plugins_.Rex_Comment = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var pluginProto = cr.plugins_.Rex_Comment.prototype;
+	pluginProto.Type = function(plugin)
+	{
+		this.plugin = plugin;
+		this.runtime = plugin.runtime;
+	};
+	var typeProto = pluginProto.Type.prototype;
+	typeProto.onCreate = function()
+	{
+	};
+	pluginProto.Instance = function(type)
+	{
+		this.type = type;
+		this.runtime = type.runtime;
+	};
+	var instanceProto = pluginProto.Instance.prototype;
+	instanceProto.onCreate = function()
+	{
+	};
+	instanceProto.onDestroy = function ()
+	{
+	};
+	function Cnds() {};
+	pluginProto.cnds = new Cnds();
+	Cnds.prototype.NOOP = function ()
+	{
+		return true;
+	};
+	function Acts() {};
+	pluginProto.acts = new Acts();
+    Acts.prototype.NOOP = function ()
+	{
+	};
+	function Exps() {};
+	pluginProto.exps = new Exps();
+}());
+;
+;
+cr.plugins_.Rex_Hash = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var pluginProto = cr.plugins_.Rex_Hash.prototype;
+	pluginProto.Type = function(plugin)
+	{
+		this.plugin = plugin;
+		this.runtime = plugin.runtime;
+	};
+	var typeProto = pluginProto.Type.prototype;
+	typeProto.onCreate = function()
+	{
+	};
+	pluginProto.Instance = function(type)
+	{
+		this.type = type;
+		this.runtime = type.runtime;
+	};
+	var instanceProto = pluginProto.Instance.prototype;
+	instanceProto.onCreate = function()
+	{
+        var init_data = this.properties[0];
+        if (init_data != "")
+            this.hashtable = JSON.parse(init_data);
+        else
+            this.hashtable = {};
+		this.currentEntry = this.hashtable;
+        this.setIndent(this.properties[1]);
+        this.exp_CurKey = "";
+        this.exp_CurValue = 0;
+        this.exp_Loopindex = 0;
+	};
+	instanceProto.cleanAll = function()
+	{
+	    var key;
+		for (key in this.hashtable)
+		    delete this.hashtable[key];
+        this.currentEntry = this.hashtable;
+	};
+	instanceProto.getEntry = function(keys, root, defaultEntry)
+	{
+        var entry = root || this.hashtable;
+        if ((keys === "") || (keys.length === 0))
+        {
+        }
+        else
+        {
+            if (typeof (keys) === "string")
+                keys = keys.split(".");
+            var i,  cnt=keys.length, key;
+            for (i=0; i< cnt; i++)
+            {
+                key = keys[i];
+                if ( (entry[key] == null) || (typeof(entry[key]) !== "object") )
+                {
+                    var newEntry;
+                    if (i === cnt-1)
+                    {
+                        newEntry = defaultEntry || {};
+                    }
+                    else
+                    {
+                        newEntry = {};
+                    }
+                    entry[key] = newEntry;
+                }
+                entry = entry[key];
+            }
+        }
+        return entry;
+	};
+	instanceProto.setCurrentEntry = function(keys, root)
+	{
+        this.currentEntry = this.getEntry(keys, root);
+    };
+	instanceProto.setValue = function(keys, value, root)
+	{
+        if ((keys === "") || (keys.length === 0))
+        {
+            if ((value !== null) && typeof(value) === "object")
+            {
+                if (root == null)
+                    this.hashtable = value;
+                else
+                    root = value;
+            }
+        }
+        else
+        {
+            if (root == null)
+                root = this.hashtable;
+            if (typeof (keys) === "string")
+                keys = keys.split(".");
+            var lastKey = keys.pop();
+            var entry = this.getEntry(keys, root);
+            entry[lastKey] = value;
+        }
+	};
+	instanceProto.getValue = function(keys, root)
+	{
+        if (root == null)
+            root = this.hashtable;
+        if ((keys == null) || (keys === "") || (keys.length === 0))
+        {
+            return root;
+        }
+        else
+        {
+            if (typeof (keys) === "string")
+                keys = keys.split(".");
+            var i,  cnt=keys.length, key;
+            var entry = root;
+            for (i=0; i< cnt; i++)
+            {
+                key = keys[i];
+                if (entry.hasOwnProperty(key))
+                    entry = entry[ key ];
+                else
+                    return;
+            }
+            return entry;
+        }
+	};
+    instanceProto.removeKey = function (keys)
+	{
+        if ((keys === "") || (keys.length === 0))
+        {
+            this.cleanAll();
+        }
+        else
+        {
+            if (typeof (keys) === "string")
+                keys = keys.split(".");
+            var data = this.getValue(keys);
+            if (data === undefined)
+                return;
+            var lastKey = keys.pop();
+            var entry = this.getEntry(keys);
+            if (!isArray(entry))
+            {
+                delete entry[lastKey];
+            }
+            else
+            {
+                if ((lastKey < 0) || (lastKey >= entry.length))
+                    return;
+                else if (lastKey === (entry.length-1))
+                    entry.pop();
+                else if (lastKey === 0)
+                    entry.shift();
+                else
+                    entry.splice(lastKey, 1);
+            }
+        }
+	};
+	instanceProto.setIndent = function (space)
+	{
+        if (isNaN(space))
+            this.space = space;
+        else
+            this.sapce = parseInt(space);
+	};
+	var getItemsCount = function (o)
+	{
+	    if (o == null)  // nothing
+	        return (-1);
+	    else if ((typeof o == "number") || (typeof o == "string"))  // number/string
+	        return 0;
+		else if (o.length != null)  // list
+		    return o.length;
+	    var key,cnt=0;
+	    for (key in o)
+	        cnt += 1;
+	    return cnt;
+	};
+    var din = function (d, default_value, space)
+    {
+        var o;
+	    if (d === true)
+	        o = 1;
+	    else if (d === false)
+	        o = 0;
+        else if (d == null)
+        {
+            if (default_value != null)
+                o = default_value;
+            else
+                o = 0;
+        }
+        else if (typeof(d) == "object")
+        {
+            o = JSON.stringify(d,null,space);
+        }
+        else
+            o = d;
+	    return o;
+    };
+    var isArray = function(o)
+    {
+        return (o instanceof Array);
+    }
+	instanceProto.saveToJSON = function ()
+	{
+		return { "d": this.hashtable };
+	};
+	instanceProto.loadFromJSON = function (o)
+	{
+		this.hashtable = o["d"];
+	};
+	function Cnds() {};
+	pluginProto.cnds = new Cnds();
+	Cnds.prototype.ForEachItem = function (key)
+	{
+        var entry = this.getEntry(key);
+        var current_frame = this.runtime.getCurrentEventStack();
+        var current_event = current_frame.current_event;
+		var solModifierAfterCnds = current_frame.isModifierAfterCnds();
+        var key, value;
+        this.exp_Loopindex = -1;
+		for (key in entry)
+	    {
+            if (solModifierAfterCnds)
+		        this.runtime.pushCopySol(current_event.solModifiers);
+            this.exp_CurKey = key;
+            this.exp_CurValue = entry[key];
+            this.exp_Loopindex ++;
+			current_event.retrigger();
+            if (solModifierAfterCnds)
+			    this.runtime.popSol(current_event.solModifiers);
+		}
+        this.exp_CurKey = "";
+        this.exp_CurValue = 0;
+		return false;
+	};
+	Cnds.prototype.KeyExists = function (keys)
+	{
+	    if (keys == "")
+            return false;
+        var data = this.getValue(keys);
+        return (data !== undefined);
+	};
+	Cnds.prototype.IsEmpty = function (keys)
+	{
+        var entry = this.getEntry(keys);
+        var cnt = getItemsCount(entry);
+        return (cnt <= 0);
+	};
+	function Acts() {};
+	pluginProto.acts = new Acts();
+	Acts.prototype.SetValueByKeyString = function (key, val)
+	{
+        if (key === "")
+            return;
+        this.setValue(key, val);
+	};
+	Acts.prototype.SetCurHashEntey = function (key)
+	{
+        this.setCurrentEntry(key);
+    };
+	Acts.prototype.SetValueInCurHashEntey = function (key, val)
+	{
+        if (key === "")
+            return;
+        this.setValue(key, val, this.currentEntry);
+	};
+	Acts.prototype.CleanAll = function ()
+	{
+        this.cleanAll();
+	};
+    Acts.prototype.StringToHashTable = function (JSON_string)
+	{
+	    if (JSON_string != "")
+	        this.hashtable = JSON.parse(JSON_string);
+	    else
+	        this.cleanAll();
+	};
+    Acts.prototype.RemoveByKeyString = function (key)
+	{
+        this.removeKey(key);
+	};
+    Acts.prototype.PickKeysToArray = function (key, arrayObjs)
+	{
+	    if (!arrayObjs)
+	        return;
+        var arrayObj = arrayObjs.getFirstPicked();
+;
+        cr.plugins_.Arr.prototype.acts.SetSize.apply(arrayObj, [0,1,1]);
+        var entry = this.getEntry(key);
+		for (var key in entry)
+            cr.plugins_.Arr.prototype.acts.Push.call(arrayObj, 0, key, 0);
+	};
+	var getFullKey = function (currentKey, key)
+	{
+        if (currentKey !== "")
+            key = currentKey + "." + key;
+	    return key;
+	};
+    Acts.prototype.MergeTwoHashTable = function (hashtable_objs, conflict_handler_mode)
+	{
+	    if (!hashtable_objs)
+	        return;
+        var hashB = hashtable_objs.getFirstPicked();
+        if (hashB == null)
+            return;
+;
+		var untraversalTables = [], node;
+		var curHash, currentKey, keyB, valueB, keyA, valueA, fullKey;
+		if (conflict_handler_mode === 2)
+		{
+		    this.cleanAll();
+		    conflict_handler_mode = 0;
+		}
+        switch (conflict_handler_mode)
+        {
+        case 0: // Overwrite from hash B
+            untraversalTables.push({table:hashB.hashtable, key:""});
+			while (untraversalTables.length !== 0)
+			{
+			    node = untraversalTables.shift();
+			    curHash = node.table;
+			    currentKey = node.key;
+			    for (keyB in curHash)
+				{
+				    valueB = curHash[keyB];
+                    fullKey = getFullKey(currentKey, keyB);
+                    valueA = this.getValue(fullKey);
+				    if ((valueB === null) || typeof(valueB) !== "object")
+					{
+                        this.setValue(fullKey, valueB);
+					}
+					else
+					{
+                        if (isArray(valueB) && !isArray(valueA))
+                            this.setValue(fullKey, []);
+					    untraversalTables.push({table:valueB, key:fullKey});
+					}
+				}
+			}
+            break;
+        case 1:  // Merge new keys from hash table B
+            untraversalTables.push({table:hashB.hashtable, key:""});
+			while (untraversalTables.length !== 0)
+			{
+			    node = untraversalTables.shift();
+			    curHash = node.table;
+			    currentKey = node.key;
+			    for (keyB in curHash)
+				{
+				    valueB = curHash[keyB];
+                    fullKey = getFullKey(currentKey, keyB);
+                    valueA = this.getValue(fullKey);
+                    if (valueA !== undefined)
+                        continue;
+				    if ((valueB == null) || typeof(valueB) !== "object")
+					{
+					    this.setValue(fullKey, valueB);
+					}
+                    else
+					{
+                        if ( isArray(valueB) )
+                            this.setValue(fullKey, []);
+					    untraversalTables.push({table:valueB,  key:fullKey});
+					}
+				}
+			}
+            break;
+        }
+	};
+	Acts.prototype.SetJSONByKeyString = function (key, val)
+	{
+        val = JSON.parse(val);
+        this.setValue(key, val);
+	};
+	Acts.prototype.AddToValueByKeyString = function (keys, val)
+	{
+        if (keys === "")
+            return;
+        keys = keys.split(".");
+        var curValue = this.getValue(keys) || 0;
+        this.setValue(keys, curValue + val);
+	};
+	var _shuffle = function (arr, random_gen)
+	{
+        var i = arr.length, j, temp, random_value;
+        if ( i == 0 ) return;
+        while ( --i )
+        {
+		    random_value = (random_gen == null)?
+			               Math.random(): random_gen.random();
+            j = Math.floor( random_value * (i+1) );
+            temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+    };
+    Acts.prototype.Shuffle = function (entryKey)
+	{
+        var arr = this.getValue(entryKey);
+        if (!isArray(arr))
+            return;
+        _shuffle(arr);
+	};
+    Acts.prototype.Sort = function (entryKey, sortKey, sortMode_)
+	{
+        var arr = this.getValue(entryKey);
+        if (!isArray(arr))
+            return;
+        if (sortKey === "")
+            sortKey = null;
+        else
+            sortKey = sortKey.split(".");
+        var self = this;
+        var sortFn = function (itemA, itemB)
+        {
+            var valA = (sortKey)? self.getValue(sortKey, itemA): itemA;
+            var valB = (sortKey)? self.getValue(sortKey, itemB): itemB;
+            var m = sortMode_;
+            if (sortMode_ >= 2)  // logical descending, logical ascending
+            {
+                valA = parseFloat(valA);
+                valB = parseFloat(valB);
+                m -= 2;
+            }
+            switch (m)
+            {
+            case 0:  // descending
+                if (valA === valB) return 0;
+                else if (valA < valB) return 1;
+                else return -1;
+                break;
+            case 1:  // ascending
+                if (valA === valB) return 0;
+                else if (valA > valB) return 1;
+                else return -1;
+                break;
+            }
+        }
+        arr.sort(sortFn);
+	};
+	Acts.prototype.PushJSON = function (keys, val)
+	{
+        val = JSON.parse(val);
+        Acts.prototype.PushValue.call(this, keys, val);
+	};
+	Acts.prototype.PushValue = function (keys, val)
+	{
+        var arr = this.getEntry(keys, null, []);
+        if (!isArray(arr))
+            return;
+        arr.push(val);
+	};
+	Acts.prototype.InsertJSON = function (keys, val, idx)
+	{
+        val = JSON.parse(val);
+        Acts.prototype.InsertValue.call(this, keys, val, idx);
+	};
+	Acts.prototype.InsertValue = function (keys, val, idx)
+	{
+        var arr = this.getEntry(keys, null, []);
+        if (!isArray(arr))
+            return;
+        arr.splice(idx, 0, val);
+	};
+	Acts.prototype.SetIndent = function (space)
+	{
+        this.setIndent(space);
+	};
+	function Exps() {};
+	pluginProto.exps = new Exps();
+	Exps.prototype.Hash = function (ret, keys, default_value)
+	{
+        keys = keys.split(".");
+        var val = din(this.getValue(keys), default_value,this.space);
+		ret.set_any(val);
+	};
+    Exps.prototype.At = Exps.prototype.Hash;
+    var gKeys = [];
+	Exps.prototype.AtKeys = function (ret, key)
+	{
+        gKeys.length = 0;
+        var i, cnt=arguments.length, k;
+        for (i=1; i<cnt; i++)
+        {
+            k = arguments[i];
+            if ((typeof (k) === "string") && (k.indexOf(".") !== -1))
+                gKeys.push.apply(gKeys, k.split("."));
+            else
+                gKeys.push(k);
+        }
+        var val = din(this.getValue(gKeys), null, this.space);
+        gKeys.length = 0;
+		ret.set_any(val);
+	};
+	Exps.prototype.Entry = function (ret, key)
+	{
+        var val = din(this.currentEntry[key], null, this.space);
+		ret.set_any(val);
+	};
+	Exps.prototype.HashTableToString = function (ret)
+	{
+        var json_string = JSON.stringify(this.hashtable,null,this.space);
+		ret.set_string(json_string);
+	};
+	Exps.prototype.CurKey = function (ret)
+	{
+		ret.set_string(this.exp_CurKey);
+	};
+	Exps.prototype.CurValue = function (ret, subKeys, default_value)
+	{
+        var val = this.getValue(subKeys, this.exp_CurValue);
+        val = din(val, default_value, this.space);
+		ret.set_any(val);
+	};
+	Exps.prototype.ItemCnt = function (ret, keys)
+	{
+        var cnt = getItemsCount(this.getValue(keys));
+		ret.set_int(cnt);
+	};
+	Exps.prototype.Keys2ItemCnt = function (ret, key)
+	{
+        var keys = (arguments.length > 2)?
+                         Array.prototype.slice.call(arguments,1):
+                         [key];
+        var cnt = getItemsCount(this.getValue(keys));
+		ret.set_int(cnt);
+	};
+	Exps.prototype.ToString = function (ret)
+	{
+	    var table;
+	    if (arguments.length == 1)  // no parameter
+		    table = this.hashtable;
+		else
+		{
+		    var i, cnt=arguments.length;
+			table = {};
+			for(i=1; i<cnt; i=i+2)
+			    table[arguments[i]]=arguments[i+1];
+	    }
+		ret.set_string(JSON.stringify(table,null,this.space));
+	};
+	Exps.prototype.AsJSON = Exps.prototype.HashTableToString;
+	Exps.prototype.RandomKeyAt = function (ret, keys, default_value)
+	{
+        var val;
+        var o = this.getValue(keys);
+        if (typeof(o) === "object")
+        {
+            var isArr = isArray(o);
+            if (!isArr)
+                o = Object.keys(o);
+            var cnt = o.length;
+            if (cnt > 0)
+            {
+                val = Math.floor(Math.random()*cnt);
+                if (!isArr)
+                    val = o[val];
+            }
+        }
+        val = din(val, default_value, this.space);
+		ret.set_any(val);
+	};
+	Exps.prototype.Loopindex = function (ret)
+	{
+		ret.set_int(this.exp_Loopindex);
+	};
+	Exps.prototype.Pop = function (ret, keys, idx)
+	{
+        var arr = this.getEntry(keys);
+        var val;
+        if (arr == null)
+            val = 0;
+        else if ((idx == null) || (idx === (arr.length-1)))
+            val = arr.pop()
+        else
+            val = arr.splice(idx, 1);
+		ret.set_any( din(val, null, this.space) );
+	};
+}());
+;
+;
+cr.plugins_.Rex_JSONBuider = function(runtime)
+{
+	this.runtime = runtime;
+};
+(function ()
+{
+	var pluginProto = cr.plugins_.Rex_JSONBuider.prototype;
+	pluginProto.Type = function(plugin)
+	{
+		this.plugin = plugin;
+		this.runtime = plugin.runtime;
+	};
+	var typeProto = pluginProto.Type.prototype;
+	typeProto.onCreate = function()
+	{
+	};
+	pluginProto.Instance = function(type)
+	{
+		this.type = type;
+		this.runtime = type.runtime;
+	};
+	var instanceProto = pluginProto.Instance.prototype;
+	instanceProto.onCreate = function()
+	{
+        this.clean();
+	};
+	instanceProto.onDestroy = function ()
+	{
+	};
+	instanceProto.clean = function()
+	{
+        this.data = null;
+        this.current_object = null;
+	};
+	instanceProto.add_object = function (k_, type_)
+	{
+        var new_object = (type_===0)? []:{};
+        if (this.data === null)
+            this.data = new_object;
+        else
+            this.add_value(k_, new_object);
+        var previous_object = this.current_object;
+        this.current_object = new_object;
+        var current_frame = this.runtime.getCurrentEventStack();
+        var current_event = current_frame.current_event;
+		var solModifierAfterCnds = current_frame.isModifierAfterCnds();
+        if (solModifierAfterCnds)
+            this.runtime.pushCopySol(current_event.solModifiers);
+        current_event.retrigger();
+        if (solModifierAfterCnds)
+            this.runtime.popSol(current_event.solModifiers);
+        this.current_object = previous_object;
+		return false;
+	};
+	instanceProto.add_value = function (k_, v_)
+	{
+        if (this.current_object == null)
+        {
+            alert("JSON Builder: Please add a key-value into an object.");
+            return;
+        }
+        if (this.current_object instanceof Array)  // add to array
+            this.current_object.push(v_);
+        else                                                               // add to dictionary
+            this.current_object[k_] = v_;
+	};
+	instanceProto.saveToJSON = function ()
+	{
+		return { "d": this.data,
+                };
+	};
+	instanceProto.loadFromJSON = function (o)
+	{
+		this.data = o["d"];
+	};
+	function Cnds() {};
+	pluginProto.cnds = new Cnds();
+	Cnds.prototype.AddObject = function (k_, type_)
+	{
+        return this.add_object(k_, type_);
+	};
+	Cnds.prototype.SetRoot = function (type_)
+	{
+        this.clean();
+        return this.add_object("", type_);
+	};
+	function Acts() {};
+	pluginProto.acts = new Acts();
+    Acts.prototype.Clean = function ()
+	{
+        this.clean();
+	};
+    Acts.prototype.AddValue = function (k_, v_)
+	{
+        this.add_value(k_, v_);
+	};
+    Acts.prototype.AddBooleanValue = function (k_, v_)
+	{
+        this.add_value(k_, (v_ === 1));
+	};
+    Acts.prototype.AddNullValue = function (k_)
+	{
+        this.add_value(k_, null);
+	};
+	function Exps() {};
+	pluginProto.exps = new Exps();
+    Exps.prototype.AsJSON = function (ret)
+	{
+	    ret.set_string( JSON.stringify(this.data) );
+	};
+}());
+;
+;
 cr.plugins_.Rex_Nickname = function (runtime) {
 	this.runtime = runtime;
 };
@@ -25758,6 +26498,399 @@ cr.plugins_.Rex_audio_helper = function (runtime) {
         else if (this.__on_tick_handler === "TaskNOOP") {
             this.remain = o["rem"];
         }
+    };
+}());
+;
+;
+cr.plugins_.Rex_jsshell = function (runtime) {
+    this.runtime = runtime;
+};
+(function () {
+    var pluginProto = cr.plugins_.Rex_jsshell.prototype;
+    pluginProto.Type = function (plugin) {
+        this.plugin = plugin;
+        this.runtime = plugin.runtime;
+    };
+    var typeProto = pluginProto.Type.prototype;
+    typeProto.onCreate = function () {
+    };
+    pluginProto.Instance = function (type) {
+        this.type = type;
+        this.runtime = type.runtime;
+    };
+    var instanceProto = pluginProto.Instance.prototype;
+    var callItem = function () {
+        this.name = "";
+        this.retVal = 0;
+        this.params = [];
+    };
+    var callbackItem = function () {
+        this.params = [];
+    };
+    instanceProto.onCreate = function () {
+        this.callStack = new StackKlass(callItem);
+        this.c2FnType = null;
+        this.callbackStack = new StackKlass(callbackItem);
+        var self = this;
+        this.getCallback = function (callbackTag) {
+            if (callbackTag == null)
+                return null;
+            var cb = function () {
+                self.callbackStack.push();
+                var lastCall = self.callbackStack.getCurrent();
+                cr.shallowAssignArray(lastCall.params, arguments);
+                self.callbackTag = callbackTag;
+                self.runtime.trigger(cr.plugins_.Rex_jsshell.prototype.cnds.OnCallback, self);
+                lastCall.params.length = 0;
+                self.callbackStack.pop();
+            }
+            return cb;
+        };
+        this.getC2FnCallback = function (c2FunctionName) {
+            if (c2FunctionName == null)
+                return null;
+            var cb = function () {
+                self.callC2Fn(c2FunctionName, arguments);
+            }
+            return cb;
+        };
+    };
+    instanceProto.onDestroy = function () {
+    };
+    instanceProto.LoadAPI = function (src, onloadCb, onerrorCb) {
+        var scripts = document.getElementsByTagName("script");
+        var exist = false;
+        for (var i = 0; i < scripts.length; i++) {
+            if (scripts[i].src.indexOf(src) != -1) {
+                exist = true;
+                break;
+            }
+        }
+        if (!exist) {
+            var newScriptTag = document.createElement("script");
+            newScriptTag["type"] = "text/javascript";
+            newScriptTag["src"] = src;
+            var self = this;
+            var onLoad = function () {
+                self.isLoaded = true;
+                if (onloadCb)
+                    onloadCb();
+            };
+            var onError = function () {
+                if (onerrorCb)
+                    onerrorCb();
+            };
+            newScriptTag["onload"] = onLoad;
+            newScriptTag["onerror"] = onError;
+            document.getElementsByTagName("head")[0].appendChild(newScriptTag);
+        }
+    };
+    instanceProto.getC2FnType = function () {
+        if (this.c2FnType === null) {
+            if (window["c2_callRexFunction2"])
+                this.c2FnType = "c2_callRexFunction2";
+            else if (window["c2_callFunction"])
+                this.c2FnType = "c2_callFunction";
+            else
+                this.c2FnType = "";
+        }
+        return this.c2FnType;
+    };
+    instanceProto.callC2Fn = function (c2FnName, params) {
+        var c2FnGlobalName = this.getC2FnType();
+        if (c2FnGlobalName === "")
+            return 0;
+        var i, cnt = params.length;
+        for (i = 0; i < cnt; i++) {
+            params[i] = din(params[i]);
+        }
+        var retValue = window[c2FnGlobalName](c2FnName, params);
+        return retValue;
+    };
+    var invokeFunction = function (functionName, params, isNewObject) {
+        var names = functionName.split(".");
+        var fnName = names.pop();
+        var o = getValue(names, window);
+        if (!o) {
+;
+            return;
+        }
+        var retValue;
+        if (isNewObject) {
+            params.unshift(null);
+            retValue = new (Function.prototype.bind.apply(o[fnName], params));
+        }
+        else {
+            retValue = o[fnName].apply(o, params);
+        }
+        return retValue;
+    };
+    function Cnds() { };
+    pluginProto.cnds = new Cnds();
+    Cnds.prototype.OnCallback = function (tag) {
+        return cr.equals_nocase(tag, this.callbackTag);
+    };
+    function Acts() { };
+    pluginProto.acts = new Acts();
+    Acts.prototype.InvokeFunction = function (varName) {
+        var lastCall = this.callStack.getCurrent();
+        this.callStack.pop();
+        var params = lastCall.params;
+        lastCall.params = [];
+        lastCall.retVal = invokeFunction(lastCall.name, params);
+        if (varName !== "") {
+            setValue(varName, lastCall.retVal, window);
+        }
+    };
+    Acts.prototype.CreateInstance = function (varName) {
+        if (varName === "")
+            return;
+        var lastCall = this.callStack.getCurrent();
+        this.callStack.pop();
+        var params = lastCall.params;
+        lastCall.params = [];
+        var o = invokeFunction(lastCall.name, params, true);
+        setValue(varName, o, window);
+    };
+    Acts.prototype.SetFunctionName = function (name) {
+        this.callStack.push();
+        var lastCall = this.callStack.getCurrent();
+        lastCall.name = name;
+        lastCall.retVal = 0;
+    };
+    Acts.prototype.AddValue = function (v) {
+        var lastCall = this.callStack.getCurrent();
+        lastCall.params.push(v);
+    };
+    Acts.prototype.AddJSON = function (v) {
+        var lastCall = this.callStack.getCurrent();
+        lastCall.params.push(JSON.parse(v));
+    };
+    Acts.prototype.AddBoolean = function (v) {
+        var lastCall = this.callStack.getCurrent();
+        lastCall.params.push(v === 1);
+    };
+    Acts.prototype.AddCallback = function (callbackTag) {
+        var lastCall = this.callStack.getCurrent();
+        lastCall.params.push(this.getCallback(callbackTag));
+    };
+    Acts.prototype.AddNull = function () {
+        var lastCall = this.callStack.getCurrent();
+        lastCall.params.push(null);
+    };
+    Acts.prototype.AddObject = function (varName) {
+        var lastCall = this.callStack.getCurrent();
+        lastCall.params.push(getValue(varName, window));
+    };
+    Acts.prototype.AddC2Callback = function (c2FnName) {
+        var lastCall = this.callStack.getCurrent();
+        lastCall.params.push(this.getC2FnCallback(c2FnName));
+    };
+    Acts.prototype.SetProp = function (varName, value) {
+        setValue(varName, value, window);
+    };
+    Acts.prototype.LoadAPI = function (src, successTag, errorTag) {
+        this.LoadAPI(src, this.getCallback(successTag), this.getCallback(errorTag));
+    };
+    function Exps() { };
+    pluginProto.exps = new Exps();
+    Exps.prototype.Param = function (ret, index, keys, defaultValue) {
+        var params = this.callbackStack.getCurrent().params;
+        var val = params[index];
+        if (typeof (keys) === "number") {
+            keys = [keys];
+        }
+        ret.set_any(getItemValue(val, keys, defaultValue));
+    };
+    Exps.prototype.ParamCount = function (ret) {
+        var params = this.callbackStack.getCurrent().params;
+        ret.set_int(params.length);
+    };
+    Exps.prototype.ReturnValue = function (ret, keys, defaultValue) {
+        if (typeof (keys) === "number") {
+            keys = [keys];
+        }
+        var preCall = this.callStack.getOneAbove();
+        ret.set_any(getItemValue(preCall.retVal, keys, defaultValue));
+    };
+    Exps.prototype.Prop = function (ret, keys, defaultValue) {
+        ret.set_any(getItemValue(window, keys, defaultValue));
+    };
+    var PARAMTYPE_VALUE = 0;
+    var PARAMTYPE_JSON = 1;
+    var PARAMTYPE_CALLBACK = 2;
+    var PARAMTYPE_VAR = 3;
+    var PARAMTYPE_C2FN = 4;
+    var gExpPattern = /^@#@(\[.*\])@#@/;
+    Exps.prototype.Call = function (ret, functionName) {
+        this.callStack.push();
+        var lastCall = this.callStack.getCurrent();
+        var params = [];
+        var i, cnt = arguments.length;
+        for (i = 2; i < cnt; i++) {
+            var param = arguments[i];
+            if ((typeof (param) === "string") && (gExpPattern.test(param))) {
+                param = param.match(gExpPattern)[1];
+                param = JSON.parse(param);
+                switch (param[0]) {
+                    case PARAMTYPE_VALUE: param = param[1]; break;
+                    case PARAMTYPE_JSON: param = param[1]; break;
+                    case PARAMTYPE_CALLBACK: param = this.getCallback(param[1]); break;
+                    case PARAMTYPE_VAR: param = getValue(param[1], window); break;
+                    case PARAMTYPE_C2FN: param = this.getC2FnCallback(param[1]); break;
+                    default: param = null;
+                }
+            }
+            params.push(param);
+        }
+        lastCall.retVal = invokeFunction(functionName, params);
+        ret.set_any(din(lastCall.retVal));
+    };
+    Exps.prototype.ValueParam = function (ret, value) {
+        var param = [PARAMTYPE_VALUE, value];
+        param = "@#@" + JSON.stringify(param) + "@#@";
+        ret.set_string(param);
+    };
+    Exps.prototype.JSONParam = function (ret, s) {
+        var param = [PARAMTYPE_JSON, JSON.parse(s)];
+        param = "@#@" + JSON.stringify(param) + "@#@";
+        ret.set_string(param);
+    };
+    Exps.prototype.BooleanParam = function (ret, b) {
+        var param = [PARAMTYPE_VALUE, (b === 1)];
+        param = "@#@" + JSON.stringify(param) + "@#@";
+        ret.set_string(param);
+    };
+    Exps.prototype.CallbackParam = function (ret, fnName) {
+        var param = [PARAMTYPE_CALLBACK, fnName];
+        param = "@#@" + JSON.stringify(param) + "@#@";
+        ret.set_string(param);
+    };
+    Exps.prototype.NullParam = function (ret) {
+        var param = [PARAMTYPE_VALUE, null];
+        param = "@#@" + JSON.stringify(param) + "@#@";
+        ret.set_string(param);
+    };
+    Exps.prototype.ObjectParam = function (ret, varName) {
+        var param = [PARAMTYPE_VAR, varName];
+        param = "@#@" + JSON.stringify(param) + "@#@";
+        ret.set_string(param);
+    };
+    Exps.prototype.C2FnParam = function (ret, fnName) {
+        var param = [PARAMTYPE_C2FN, fnName];
+        param = "@#@" + JSON.stringify(param) + "@#@";
+        ret.set_string(param);
+    };
+    var getValue = function (keys, root) {
+        if ((keys == null) || (keys === "") || (keys.length === 0)) {
+            return root;
+        }
+        else {
+            if (typeof (keys) === "string")
+                keys = keys.split(".");
+            var i, cnt = keys.length, key;
+            var entry = root;
+            for (i = 0; i < cnt; i++) {
+                key = keys[i];
+                if (key in entry) {
+                    entry = entry[key];
+                } else {
+;
+                    return;
+                }
+            }
+            return entry;
+        }
+    };
+    var getEntry = function (keys, root, defaultEntry) {
+        var entry = root;
+        if ((keys === "") || (keys.length === 0)) {
+        }
+        else {
+            if (typeof (keys) === "string")
+                keys = keys.split(".");
+            var i, cnt = keys.length, key;
+            for (i = 0; i < cnt; i++) {
+                key = keys[i];
+                if ((entry[key] == null) || (typeof (entry[key]) !== "object")) {
+                    var newEntry;
+                    if (i === cnt - 1) {
+                        newEntry = defaultEntry || {};
+                    }
+                    else {
+                        newEntry = {};
+                    }
+                    entry[key] = newEntry;
+                }
+                entry = entry[key];
+            }
+        }
+        return entry;
+    };
+    var setValue = function (keys, value, root) {
+        if ((keys === "") || (keys.length === 0)) {
+            if ((value !== null) && typeof (value) === "object") {
+                root = value;
+            }
+        }
+        else {
+            if (typeof (keys) === "string")
+                keys = keys.split(".");
+            var lastKey = keys.pop();
+            var entry = getEntry(keys, root);
+            entry[lastKey] = value;
+        }
+    };
+    var getItemValue = function (item, k, defaultValue) {
+        return din(getValue(k, item), defaultValue);
+    };
+    var din = function (d, defaultValue) {
+        var o;
+        if (d === true)
+            o = 1;
+        else if (d === false)
+            o = 0;
+        else if (d == null) {
+            if (defaultValue != null)
+                o = defaultValue;
+            else
+                o = 0;
+        }
+        else if (typeof (d) == "object")
+            o = JSON.stringify(d);
+        else
+            o = d;
+        return o;
+    };
+    var StackKlass = function (itemCb) {
+        this.items = [];
+        this.ptr = -1;
+        this.itemCb = itemCb;
+    };
+    var StackKlassProto = StackKlass.prototype;
+    StackKlassProto.getCurrent = function () {
+        if (this.ptr < 0)
+            return null;
+        return this.items[this.ptr];
+    };
+    StackKlassProto.getOneAbove = function () {
+        if (this.items.length == 0)
+            return null;
+        var i = this.ptr + 1;
+        if (i >= this.items.length)
+            i = this.items.length - 1;
+        return this.items[i];
+    };
+    StackKlassProto.push = function () {
+        this.ptr++;
+        if (this.ptr === this.items.length) {
+            this.items.push(new this.itemCb());
+        }
+        return this.items[this.ptr];
+    };
+    StackKlassProto.pop = function () {
+;
+        this.ptr--;
     };
 }());
 ;
@@ -38756,30 +39889,34 @@ cr.behaviors.solid = function(runtime)
 cr.getObjectRefTable = function () { return [
 	cr.plugins_.AJAX,
 	cr.plugins_.Browser,
-	cr.plugins_.Arr,
 	cr.plugins_.Audio,
+	cr.plugins_.Arr,
 	cr.plugins_.Function,
-	cr.plugins_.Particles,
 	cr.plugins_.Keyboard,
+	cr.plugins_.Particles,
+	cr.plugins_.Rex_Comment,
 	cr.plugins_.Rex_audio_helper,
-	cr.plugins_.Rex_ArrowKey,
 	cr.plugins_.Rex_CSV,
+	cr.plugins_.Rex_ArrowKey,
+	cr.plugins_.Rex_Hash,
+	cr.plugins_.Rex_jsshell,
+	cr.plugins_.Rex_JSONBuider,
 	cr.plugins_.Rex_Nickname,
-	cr.plugins_.Rex_Tilt2ArrowKey,
 	cr.plugins_.Rex_Scenario,
-	cr.plugins_.Rex_SysExt,
 	cr.plugins_.Rex_Pause,
+	cr.plugins_.Rex_SysExt,
 	cr.plugins_.Rex_TimeLine,
+	cr.plugins_.Rex_Tilt2ArrowKey,
 	cr.plugins_.Rex_WaitEvent,
 	cr.plugins_.rex_TouchWrap,
+	cr.plugins_.Rex_WebstorageExt,
 	cr.plugins_.Spritefont2,
-	cr.plugins_.TiledBg,
 	cr.plugins_.Sprite,
 	cr.plugins_.Text,
-	cr.plugins_.Rex_WebstorageExt,
+	cr.plugins_.TR_UltimateIAP,
+	cr.plugins_.TiledBg,
 	cr.plugins_.TR_UltimateAds,
 	cr.plugins_.WebStorage,
-	cr.plugins_.TR_UltimateIAP,
 	cr.plugins_.cranberrygame_CordovaGame,
 	cr.behaviors.scrollto,
 	cr.behaviors.solid,
@@ -38946,15 +40083,14 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Sprite.prototype.acts.SetAnimSpeed,
 	cr.plugins_.Sprite.prototype.cnds.IsBoolInstanceVarSet,
 	cr.behaviors.Rex_bNickname.prototype.exps.Nickname,
-	cr.plugins_.cranberrygame_CordovaGame.prototype.acts.UnlockAchievement,
 	cr.plugins_.Sprite.prototype.acts.SetAnimFrame,
 	cr.plugins_.Sprite.prototype.exps.AnimationFrame,
+	cr.system_object.prototype.cnds.IsOnPlatform,
 	cr.behaviors.Timer.prototype.acts.StartTimer,
 	cr.behaviors.Timer.prototype.cnds.OnTimer,
 	cr.system_object.prototype.acts.SubVar,
 	cr.plugins_.Rex_Scenario.prototype.acts.Stop,
 	cr.plugins_.Audio.prototype.acts.Stop,
-	cr.plugins_.cranberrygame_CordovaGame.prototype.acts.SubmitScore,
 	cr.plugins_.Function.prototype.cnds.CompareParam,
 	cr.behaviors.Rex_Platform_MoveTo.prototype.acts.SetTargetPosX,
 	cr.plugins_.Browser.prototype.cnds.OnPageHidden,
@@ -38962,8 +40098,6 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Rex_Scenario.prototype.acts.SetupTimeline,
 	cr.plugins_.Rex_WaitEvent.prototype.acts.WaitEvent,
 	cr.plugins_.AJAX.prototype.acts.RequestFile,
-	cr.system_object.prototype.cnds.IsOnPlatform,
-	cr.plugins_.Audio.prototype.acts.Preload,
 	cr.plugins_.AJAX.prototype.cnds.OnComplete,
 	cr.plugins_.Rex_Scenario.prototype.acts.LoadCmds,
 	cr.plugins_.AJAX.prototype.exps.LastData,
@@ -38973,16 +40107,13 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Rex_WaitEvent.prototype.cnds.OnAllEventsFinished,
 	cr.system_object.prototype.acts.GoToLayout,
 	cr.system_object.prototype.exps.loadingprogress,
-	cr.plugins_.cranberrygame_CordovaGame.prototype.acts.Login,
 	cr.plugins_.Browser.prototype.acts.GoToURL,
 	cr.behaviors.rex_Anchor_mod.prototype.cnds.OnAnchored,
-	cr.plugins_.cranberrygame_CordovaGame.prototype.cnds.OnLoginSucceeded,
 	cr.behaviors.Rex_Button2.prototype.acts.GotoINACTIVE,
 	cr.behaviors.Rex_Button2.prototype.acts.GotoACTIVE,
 	cr.plugins_.WebStorage.prototype.cnds.LocalStorageExists,
 	cr.system_object.prototype.exps.layoutname,
 	cr.plugins_.Sprite.prototype.cnds.CompareFrame,
-	cr.plugins_.cranberrygame_CordovaGame.prototype.acts.ShowLeaderboard,
 	cr.behaviors.Rex_ToggleSwitch.prototype.acts.ToogleValue,
 	cr.behaviors.Rex_ToggleSwitch.prototype.cnds.OnTurnOn,
 	cr.plugins_.Audio.prototype.acts.SetVolume,
@@ -38999,21 +40130,9 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Audio.prototype.cnds.IsTagPlaying,
 	cr.system_object.prototype.cnds.For,
 	cr.system_object.prototype.exps.loopindex,
-	cr.plugins_.TR_UltimateAds.prototype.acts.HideBanner,
+	cr.plugins_.Rex_jsshell.prototype.cnds.OnCallback,
 	cr.behaviors.rex_lunarray_Tween_mod.prototype.acts.Start,
 	cr.plugins_.Text.prototype.acts.SetText,
-	cr.plugins_.TR_UltimateIAP.prototype.cnds.OnPurchaseSucceeded,
-	cr.plugins_.TR_UltimateIAP.prototype.exps.PurchaseProductId,
-	cr.plugins_.TR_UltimateIAP.prototype.cnds.OnPurchaseFailed,
-	cr.plugins_.TR_UltimateAds.prototype.acts.LoadBanner,
-	cr.plugins_.TR_UltimateAds.prototype.acts.LoadInterstitial,
-	cr.plugins_.TR_UltimateAds.prototype.acts.LoadRewardInterstitial,
-	cr.plugins_.TR_UltimateAds.prototype.cnds.IsBannerLoaded,
-	cr.plugins_.TR_UltimateAds.prototype.acts.SetLayout,
-	cr.plugins_.TR_UltimateAds.prototype.acts.ShowBanner,
-	cr.plugins_.TR_UltimateAds.prototype.cnds.IsVideoLoaded,
-	cr.plugins_.TR_UltimateAds.prototype.cnds.OnBannerLoaded,
-	cr.plugins_.TR_UltimateAds.prototype.cnds.OnRewardInterstitialLoaded,
 	cr.plugins_.Text.prototype.acts.SetY,
 	cr.plugins_.Text.prototype.acts.SetFontSize,
 	cr.behaviors.rex_lunarray_Tween_mod.prototype.cnds.OnEnd,
@@ -39030,17 +40149,27 @@ cr.getObjectRefTable = function () { return [
 	cr.system_object.prototype.exps.rgb,
 	cr.plugins_.Text.prototype.acts.SetOpacity,
 	cr.behaviors.Rex_DragDrop2.prototype.cnds.OnDragStart,
-	cr.plugins_.TR_UltimateIAP.prototype.acts.RegisterProduct,
-	cr.plugins_.TR_UltimateIAP.prototype.acts.Initialize,
 	cr.plugins_.Sprite.prototype.acts.SetOpacity,
-	cr.plugins_.TR_UltimateIAP.prototype.cnds.OnInitSucceeded,
-	cr.plugins_.TR_UltimateIAP.prototype.exps.ProductLocalizedPrice,
-	cr.plugins_.TR_UltimateIAP.prototype.acts.RestorePurchases,
-	cr.plugins_.TR_UltimateIAP.prototype.acts.PurchaseProduct,
 	cr.plugins_.Text.prototype.exps.Text,
 	cr.plugins_.Sprite.prototype.cnds.CompareOpacity,
 	cr.plugins_.Rex_SysExt.prototype.acts.PickInverse,
 	cr.plugins_.Browser.prototype.cnds.IsOnline,
-	cr.plugins_.TR_UltimateAds.prototype.acts.ShowRewardInterstitial,
-	cr.plugins_.TR_UltimateAds.prototype.cnds.OnRewardInterstitialSucceeded
+	cr.plugins_.Rex_Comment.prototype.acts.NOOP,
+	cr.plugins_.Rex_jsshell.prototype.acts.SetFunctionName,
+	cr.plugins_.Rex_jsshell.prototype.acts.AddValue,
+	cr.plugins_.Rex_jsshell.prototype.acts.AddCallback,
+	cr.plugins_.Rex_jsshell.prototype.acts.InvokeFunction,
+	cr.plugins_.Rex_Hash.prototype.acts.StringToHashTable,
+	cr.plugins_.Rex_jsshell.prototype.exps.Param,
+	cr.plugins_.Rex_Hash.prototype.exps.AsJSON,
+	cr.plugins_.Rex_Hash.prototype.exps.At,
+	cr.plugins_.Rex_JSONBuider.prototype.acts.Clean,
+	cr.plugins_.Rex_JSONBuider.prototype.cnds.SetRoot,
+	cr.plugins_.Rex_JSONBuider.prototype.acts.AddValue,
+	cr.plugins_.Rex_JSONBuider.prototype.acts.AddBooleanValue,
+	cr.plugins_.Rex_jsshell.prototype.acts.AddJSON,
+	cr.plugins_.Rex_JSONBuider.prototype.exps.AsJSON,
+	cr.system_object.prototype.exps.replace,
+	cr.plugins_.Rex_Hash.prototype.cnds.ForEachItem,
+	cr.plugins_.Rex_Hash.prototype.exps.CurValue
 ];};
