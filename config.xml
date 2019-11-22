@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<widget id="com.playone.cp" version="1.3" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.playone.cp" version="1.3" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
 	<name>Penguins are coming</name>
 	<description>Penguins come with powerful weapons!</description>
 	<author href="https://www.facebook.com/touartgame" email="playoneapps@gmail.com">Touart Games</author>
@@ -74,6 +74,10 @@
 	<config-file parent="UIStatusBarHidden" platform="ios" target="*-Info.plist"><true/></config-file>
 	<config-file parent="UIViewControllerBasedStatusBarAppearance" platform="ios" target="*-Info.plist"><false/></config-file>
 
+	<!--cli 8.0.0, cordova android 7.0.0-->
+    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
+        <application android:allowBackup="false"/>
+    </edit-config>
 
 	<preference name="deployment-target" value="9.0" />
 	<preference name="android-minSdkVersion" value="23" />
