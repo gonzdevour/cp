@@ -33,12 +33,12 @@
 		{ "id": "https://github.com/cranberrygame/cordova-plugin-game --variable APP_ID='YOUR_GOOGLE_PLAY_GAME_APP_ID'", "version": null }
 	],
 	"android": {
-		"min": 22,
-		"target": 26,
+		"min": 27,
+		"target": 29,
 		"plugins": []
 	},
 	"ios": {
-		"target": "9.0",
+		"target": "12.0",
 		"plugins": []
 	}
 }
