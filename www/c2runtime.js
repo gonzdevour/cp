@@ -40869,7 +40869,6 @@ cr.getObjectRefTable = function () { return [
 	cr.plugins_.Rex_jsshell.prototype.acts.SetFunctionName,
 	cr.plugins_.Rex_jsshell.prototype.acts.AddCallback,
 	cr.plugins_.Rex_jsshell.prototype.acts.InvokeFunction,
-	cr.plugins_.Browser.prototype.cnds.IsOnline,
 	cr.plugins_.Rex_Comment.prototype.acts.NOOP,
 	cr.plugins_.Rex_jsshell.prototype.acts.AddValue,
 	cr.plugins_.Rex_Hash.prototype.acts.StringToHashTable,
