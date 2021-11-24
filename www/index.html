@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-	<title>CP</title>
+	<title>Penguins are coming</title>
 	
 	<!-- Allow fullscreen mode on iOS devices. (These are Apple specific meta tags.) -->
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui" />
+	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui, viewport-fit=cover" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 	<link rel="apple-touch-icon" sizes="256x256" href="icon-256.png" />
@@ -58,12 +58,10 @@
 	</div>
 	
 	<!-- Construct 2 exported games require jQuery. -->
+	<script type="text/javascript" src="iap_simple.js"></script>
 	<script src="jquery-3.4.1.min.js"></script>
-
 	<script src="mustache.min.js"></script>
 	<script src="taffy.js"></script>
-
-
 	<script src="cordova.js"></script>
 	
     <!-- The runtime script.  You can rename it, but don't forget to rename the reference here as well.
