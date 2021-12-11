@@ -1,4 +1,4 @@
-var cdv_idfa_getinfo = function (onSuccess) {
+window.cdv_idfa_getinfo = function (onSuccess) {
   cordova.plugins.idfa
     .getInfo()
     .then((info) => {
