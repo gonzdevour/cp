@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<widget id="com.playone.cp" version="1.4" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.playone.cp" version="1.8" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
 	<name>CP</name>
 	<description>Penguins come with powerful weapons!</description>
 	<author href="https://www.facebook.com/touartgame" email="playoneapps@gmail.com">Touart Games</author>
@@ -22,8 +22,6 @@
 	<preference name="android-minSdkVersion" value="27" />
 	<access origin="*" />
 
-	<plugin name="cocoon-plugin-ads-android-admob" />
-	<plugin name="cocoon-plugin-inapps-android-googleplay" />
 	<plugin name="cordova-custom-config" />
 	<plugin name="cordova-plugin-file" />
 	<plugin name="cordova-plugin-inappbrowser" />
@@ -31,7 +29,6 @@
 	<plugin name="cordova-plugin-statusbar" />
 	<plugin name="cordova-plugin-whitelist" />
 	<plugin name="cordova-plugin-wkwebview-engine" />
-	<plugin name="https://github.com/cranberrygame/cordova-plugin-game --variable APP_ID='YOUR_GOOGLE_PLAY_GAME_APP_ID'" />
 
 
 	<engine name="ios" />

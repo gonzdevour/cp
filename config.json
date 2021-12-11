@@ -1,6 +1,6 @@
 ﻿{
 	"id": "com.playone.cp",
-	"version": "1.4",
+	"version": "1.8",
 	"name": "CP",
 	"description": "Penguins come with powerful weapons!",
 	"author": "Touart Games",
@@ -21,16 +21,13 @@
 		"density": "xhdpi"
 	}],
 	"plugins": [
-		{ "id": "cocoon-plugin-ads-android-admob", "version": null },
-		{ "id": "cocoon-plugin-inapps-android-googleplay", "version": null },
 		{ "id": "cordova-custom-config", "version": null },
 		{ "id": "cordova-plugin-file", "version": null },
 		{ "id": "cordova-plugin-inappbrowser", "version": null },
 		{ "id": "cordova-plugin-media", "version": null },
 		{ "id": "cordova-plugin-statusbar", "version": null },
 		{ "id": "cordova-plugin-whitelist", "version": null },
-		{ "id": "cordova-plugin-wkwebview-engine", "version": null },
-		{ "id": "https://github.com/cranberrygame/cordova-plugin-game --variable APP_ID='YOUR_GOOGLE_PLAY_GAME_APP_ID'", "version": null }
+		{ "id": "cordova-plugin-wkwebview-engine", "version": null }
 	],
 	"android": {
 		"min": 27,
