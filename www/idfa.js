@@ -1,5 +1,6 @@
 window.cdv_idfa_getinfo = function (onSuccess) {
-  cordova.plugins.idfa
+  var idfaPlugin = cordova.plugins.idfa;
+  idfaPlugin
     .getInfo()
     .then((info) => {
       if (!info.trackingLimited) {
